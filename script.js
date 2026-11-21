@@ -654,3 +654,77 @@ window.addEventListener('scroll', () => {
     }
   }
 }, { passive: true });
+
+/* Scroll Reading Progress */
+function initScrollProgress() {
+  const progress = document.getElementById('scroll-progress');
+  if (!progress) return;
+
+  const updateProgress = () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const percentage = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    progress.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
+  };
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+}
+
+/* Scroll Reveal */
+function initScrollReveal() {
+  const elements = document.querySelectorAll('.reveal-on-scroll');
+
+  if (!('IntersectionObserver' in window)) {
+    elements.forEach(element => element.classList.add('revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  elements.forEach(element => observer.observe(element));
+}
+
+/* Back to Top Button */
+function initBackToTop() {
+  const button = document.getElementById('back-to-top');
+  if (!button) return;
+
+  const updateVisibility = () => {
+    button.classList.toggle('visible', window.scrollY > 500);
+  };
+
+  window.addEventListener('scroll', updateVisibility, { passive: true });
+  button.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  updateVisibility();
+}
+
+/* Resume Page Tabs */
+function initResumePageTabs() {
+  const tabs = document.querySelectorAll('.resume-tab-btn');
+  const pages = document.querySelectorAll('.resume-page-item');
+  if (!tabs.length || !pages.length) return;
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(item => item.classList.remove('active'));
+      tab.classList.add('active');
+
+      const selectedPage = tab.getAttribute('data-page');
+      pages.forEach(page => {
+        const shouldShow = selectedPage === 'all' ||
+          page.id === `resume-page-item-${selectedPage}`;
+        page.classList.toggle('hidden', !shouldShow);
+      });
+    });
+  });
+}

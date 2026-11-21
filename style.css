@@ -2177,3 +2177,60 @@ a {
   border-radius: 4px;
   border: 1px solid var(--border-color);
 }
+
+
+/* ==========================================================================
+   AIML ENGINEER HIGHLIGHT & BRANDING
+   ========================================================================== */
+
+.logo-badge-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(2, 132, 199, 0.1);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.hero-badge-engineer {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border: 1px solid rgba(2, 132, 199, 0.35) !important;
+  color: var(--accent-cyan) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  font-size: 0.85rem !important;
+  padding: 0.45rem 1.25rem !important;
+  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.15) !important;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.badge-role-title {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.hero-role-headline {
+  display: inline-block;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  position: relative;
+  padding-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .hero-role-headline {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
