@@ -129,6 +129,24 @@ function initContactForm() {
   const statusEl = document.getElementById('form-status');
   const submitBtn = document.getElementById('form-submit-btn');
   const btnText = document.getElementById('btn-text');
+  const mailAppBtn = document.getElementById('mail-app-btn');
+
+  // Handler to open default mail client / Gmail directly with current input
+  const openInMailClient = () => {
+    const name = document.getElementById('form-name')?.value.trim() || 'Visitor';
+    const email = document.getElementById('form-email')?.value.trim() || '';
+    const subject = document.getElementById('form-subject')?.value.trim() || 'Portfolio Inquiry';
+    const message = document.getElementById('form-message')?.value.trim() || 'Hi Samarth,\n\nI came across your portfolio and would like to get in touch with you regarding opportunities.';
+
+    const mailBody = `From: ${name} ${email ? '(' + email + ')' : ''}\n\nMessage:\n${message}`;
+    const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent('Portfolio Contact: ' + subject)}&body=${encodeURIComponent(mailBody)}`;
+    window.location.href = mailtoUrl;
+  };
+
+  mailAppBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openInMailClient();
+  });
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -141,10 +159,13 @@ function initContactForm() {
     if (!name || !email || !message) {
       if (statusEl) {
         statusEl.className = 'form-status error';
-        statusEl.textContent = 'Please fill out all required fields.';
+        statusEl.textContent = 'Please fill out all required fields (Name, Email, and Message).';
       }
       return;
     }
+
+    const mailBody = `From: ${name} (${email})\n\nMessage:\n${message}`;
+    const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent('Portfolio Contact: ' + subject)}&body=${encodeURIComponent(mailBody)}`;
 
     // Set sending state
     if (submitBtn) submitBtn.disabled = true;
@@ -152,7 +173,7 @@ function initContactForm() {
     if (statusEl) {
       statusEl.className = 'form-status';
       statusEl.style.color = 'var(--accent-cyan)';
-      statusEl.textContent = 'Sending your message directly to samarthgupthad0@gmail.com...';
+      statusEl.textContent = 'Delivering your message directly to samarthgupthad0@gmail.com...';
     }
 
     try {
@@ -181,28 +202,50 @@ function initContactForm() {
         }
         showToast("Message sent to Samarth's email!");
         form.reset();
+      } else if (result.message && (result.message.toLowerCase().includes('activation') || result.message.toLowerCase().includes('activate'))) {
+        // FormSubmit requires one-time activation click sent to samarthgupthad0@gmail.com
+        if (statusEl) {
+          statusEl.className = 'form-status';
+          statusEl.style.color = '#f59e0b';
+          statusEl.innerHTML = `
+            <div style="padding: 1rem; border-radius: 8px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); margin-top: 0.5rem; text-align: left;">
+              <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #f59e0b;">⚠️ One-Time Activation Required for samarthgupthad0@gmail.com</p>
+              <p style="margin: 0 0 0.75rem 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary);">
+                FormSubmit has sent an activation link to <strong>samarthgupthad0@gmail.com</strong>. Please open your Gmail (Inbox or Spam) and click <strong>"Activate Form"</strong> to enable direct form delivery permanently.
+              </p>
+              <a href="${mailtoUrl}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <span>Send via Gmail / Mail Client Now</span>
+              </a>
+            </div>
+          `;
+        }
+        showToast('Action required: Please activate FormSubmit in Gmail');
       } else {
         throw new Error(result.message || 'Submission failed');
       }
     } catch (err) {
       console.error('Form delivery notice:', err);
-      // Fallback: If network restricts cross-origin fetch, provide pre-filled mailto
-      const mailBody = `From: ${name} (${email})\n\n${message}`;
-      const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent('Portfolio Inquiry: ' + subject)}&body=${encodeURIComponent(mailBody)}`;
       if (statusEl) {
-        statusEl.className = 'form-status success';
-        statusEl.innerHTML = `Message prepared! You can also <a href="${mailtoUrl}" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">click here to open directly in Gmail</a> to send.`;
+        statusEl.className = 'form-status';
+        statusEl.style.color = '#38bdf8';
+        statusEl.innerHTML = `
+          <div style="padding: 1rem; border-radius: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); margin-top: 0.5rem; text-align: left;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #38bdf8;">📬 Direct Mail Client Ready</p>
+            <p style="margin: 0 0 0.75rem 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary);">
+              Click below to deliver your message directly to <strong>samarthgupthad0@gmail.com</strong> via your preferred mail client:
+            </p>
+            <a href="${mailtoUrl}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; padding: 0.5rem 1rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>Open in Gmail / Mail App &rarr;</span>
+            </a>
+          </div>
+        `;
       }
-      showToast('Form ready! Email link provided.');
-      form.reset();
+      showToast('Click button to send via mail app');
     } finally {
       if (submitBtn) submitBtn.disabled = false;
       if (btnText) btnText.textContent = 'Send Message to My Email';
-      setTimeout(() => {
-        if (statusEl && statusEl.className.includes('error')) {
-          statusEl.textContent = '';
-        }
-      }, 9000);
     }
   });
 }
