@@ -803,39 +803,54 @@
         </div>
 
         <div class="contact-wrapper" style="grid-template-columns: 1fr;">
-          <!-- Interactive Contact Form -->
-          <form class="contact-form" id="contact-form" style="max-width: 800px; margin: 0 auto; width: 100%;">
+          <!-- Interactive Contact Form Delivered to samarthgupthad0@gmail.com -->
+          <form class="contact-form" id="contact-form" action="https://formsubmit.co/samarthgupthad0@gmail.com" method="POST" style="max-width: 800px; margin: 0 auto; width: 100%;">
             <div class="window-topbar" style="margin-bottom: 1.5rem;">
               <div class="window-dots">
                 <span class="dot dot-red"></span>
                 <span class="dot dot-yellow"></span>
                 <span class="dot dot-green"></span>
               </div>
-              <span class="window-title">Direct Inquiry Message Form</span>
+              <span class="window-title">Direct Inquiry Form &bull; Delivered straight to samarthgupthad0@gmail.com</span>
             </div>
+
+            <!-- FormSubmit Anti-Spam & Routing Configuration -->
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://samarthgupthad0-commits.github.io/portfolio/#contact">
+
             <div class="form-group">
               <label for="form-name">Your Name</label>
-              <input type="text" id="form-name" placeholder="John Doe" required>
+              <input type="text" id="form-name" name="name" placeholder="John Doe" required autocomplete="name">
             </div>
             <div class="form-group">
               <label for="form-email">Your Email</label>
-              <input type="email" id="form-email" placeholder="john@company.com" required>
+              <input type="email" id="form-email" name="email" placeholder="john@company.com" required autocomplete="email">
             </div>
             <div class="form-group">
               <label for="form-subject">Subject</label>
-              <input type="text" id="form-subject" placeholder="Internship Opportunity / Project Collaboration" required>
+              <input type="text" id="form-subject" name="_subject" placeholder="Internship Opportunity / Project Collaboration" required>
             </div>
             <div class="form-group">
               <label for="form-message">Message</label>
-              <textarea id="form-message" rows="5" placeholder="Write your message here..." required></textarea>
+              <textarea id="form-message" name="message" rows="5" placeholder="Write your message here..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary submit-btn">
-              <span>Send Message</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <button type="submit" id="form-submit-btn" class="btn btn-primary submit-btn">
+                <span id="btn-text">Send Message to My Email</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+              <a href="mailto:samarthgupthad0@gmail.com" class="btn btn-ghost" style="font-size: 0.85rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Or Open in Gmail</span>
+              </a>
+            </div>
             <div class="form-status" id="form-status"></div>
           </form>
         </div>

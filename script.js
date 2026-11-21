@@ -122,18 +122,20 @@ function initEmailCopy() {
 }
 
 /* -------------------------------------------------------------------------
-   5. Interactive Contact Form
+   5. Interactive Contact Form (Direct Delivery to samarthgupthad0@gmail.com)
    ------------------------------------------------------------------------- */
 function initContactForm() {
   const form = document.getElementById('contact-form');
   const statusEl = document.getElementById('form-status');
+  const submitBtn = document.getElementById('form-submit-btn');
+  const btnText = document.getElementById('btn-text');
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const name = document.getElementById('form-name')?.value.trim();
     const email = document.getElementById('form-email')?.value.trim();
-    const subject = document.getElementById('form-subject')?.value.trim();
+    const subject = document.getElementById('form-subject')?.value.trim() || 'Portfolio Inquiry';
     const message = document.getElementById('form-message')?.value.trim();
 
     if (!name || !email || !message) {
@@ -144,17 +146,64 @@ function initContactForm() {
       return;
     }
 
+    // Set sending state
+    if (submitBtn) submitBtn.disabled = true;
+    if (btnText) btnText.textContent = 'Delivering to Samarth...';
     if (statusEl) {
-      statusEl.className = 'form-status success';
-      statusEl.textContent = `Thank you, ${name}! Your message has been sent. You can also reach me directly at samarthgupthad0@gmail.com.`;
+      statusEl.className = 'form-status';
+      statusEl.style.color = 'var(--accent-cyan)';
+      statusEl.textContent = 'Sending your message directly to samarthgupthad0@gmail.com...';
     }
 
-    showToast('Message sent successfully!');
-    form.reset();
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/samarthgupthad0@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          _subject: `Portfolio Contact: ${subject} (from ${name})`,
+          message: message,
+          _captcha: 'false',
+          _template: 'table'
+        })
+      });
 
-    setTimeout(() => {
-      if (statusEl) statusEl.textContent = '';
-    }, 6000);
+      const result = await response.json();
+
+      if (response.ok && (result.success === 'true' || result.success === true)) {
+        if (statusEl) {
+          statusEl.className = 'form-status success';
+          statusEl.innerHTML = `✓ Thank you, <strong>${name}</strong>! Your inquiry was sent directly to Samarth's email (<strong>samarthgupthad0@gmail.com</strong>). He will get back to you shortly.`;
+        }
+        showToast("Message sent to Samarth's email!");
+        form.reset();
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (err) {
+      console.error('Form delivery notice:', err);
+      // Fallback: If network restricts cross-origin fetch, provide pre-filled mailto
+      const mailBody = `From: ${name} (${email})\n\n${message}`;
+      const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent('Portfolio Inquiry: ' + subject)}&body=${encodeURIComponent(mailBody)}`;
+      if (statusEl) {
+        statusEl.className = 'form-status success';
+        statusEl.innerHTML = `Message prepared! You can also <a href="${mailtoUrl}" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">click here to open directly in Gmail</a> to send.`;
+      }
+      showToast('Form ready! Email link provided.');
+      form.reset();
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+      if (btnText) btnText.textContent = 'Send Message to My Email';
+      setTimeout(() => {
+        if (statusEl && statusEl.className.includes('error')) {
+          statusEl.textContent = '';
+        }
+      }, 9000);
+    }
   });
 }
 
@@ -167,7 +216,7 @@ function initScrollSpy() {
 
   window.addEventListener('scroll', () => {
     let currentId = '';
-    const scrollPos = window.pageYOffset + 120;
+    const scrollPos = window.scrollY + 120;
 
     sections.forEach(section => {
       const top = section.offsetTop;
@@ -183,7 +232,7 @@ function initScrollSpy() {
         link.classList.add('active');
       }
     });
-  });
+  }, { passive: true });
 }
 
 /* -------------------------------------------------------------------------
