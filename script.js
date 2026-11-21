@@ -130,7 +130,7 @@ function initContactForm() {
   const submitBtn = document.getElementById('form-submit-btn');
   const btnText = document.getElementById('btn-text');
 
-  form?.addEventListener('submit', async (e) => {
+  form?.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const name = document.getElementById('form-name')?.value.trim();
@@ -146,73 +146,62 @@ function initContactForm() {
       return;
     }
 
-    const mailBody = `From: ${name} (${email})\n\nMessage:\n${message}`;
-    const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent('Portfolio Contact: ' + subject)}&body=${encodeURIComponent(mailBody)}`;
+    // Format the email so Samarth sees the person's email ID clearly in subject & body
+    const mailSubject = `Portfolio Inquiry from ${name} (${email}): ${subject}`;
+    const mailBody = `Inquiry for Samarth Guptha D:\n\nSender Name: ${name}\nSender Email: ${email}\nSubject: ${subject}\n\nMessage:\n${message}\n\n---\nSent from Samarth Guptha D Portfolio (https://samarthgupthad0-commits.github.io/portfolio/)`;
 
-    // Set sending state
-    if (submitBtn) submitBtn.disabled = true;
-    if (btnText) btnText.textContent = 'Sending Message...';
-    if (statusEl) {
-      statusEl.className = 'form-status';
-      statusEl.style.color = 'var(--accent-cyan)';
-      statusEl.textContent = 'Sending your message directly to Samarth...';
-    }
+    const mailtoUrl = `mailto:samarthgupthad0@gmail.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+    const gmailWebUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=samarthgupthad0@gmail.com&su=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
 
+    // 1. Immediately trigger the mail client directly from user gesture (instant, zero delay, works on all phones)
+    window.location.href = mailtoUrl;
+
+    // 2. Also asynchronously notify FormSubmit backend in background (with 3s timeout so it never blocks)
     try {
-      const response = await fetch('https://formsubmit.co/ajax/samarthgupthad0@gmail.com', {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 3000);
+      fetch('https://formsubmit.co/ajax/samarthgupthad0@gmail.com', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
-          name: name,
-          email: email,
-          _subject: `Portfolio Contact: ${subject} (from ${name})`,
-          message: message,
-          _captcha: 'false',
-          _template: 'table'
+          'Sender Name': name,
+          'Sender Email': email,
+          '_replyto': email,
+          '_subject': mailSubject,
+          'Message': message,
+          '_captcha': 'false'
         })
-      });
+      }).catch(() => {});
+    } catch (_) {}
 
-      const result = await response.json();
-
-      if (response.ok && (result.success === 'true' || result.success === true)) {
-        if (statusEl) {
-          statusEl.className = 'form-status success';
-          statusEl.innerHTML = `✓ Thank you, <strong>${name}</strong>! Your inquiry was sent directly to Samarth's email. He will get back to you shortly.`;
-        }
-        showToast("Message sent to Samarth's email!");
-        form.reset();
-      } else {
-        // Fallback: Dispatch via mailto seamlessly so inquiry is never dropped
-        window.location.href = mailtoUrl;
-        if (statusEl) {
-          statusEl.className = 'form-status success';
-          statusEl.innerHTML = `✓ Thank you, <strong>${name}</strong>! Opening your email app to deliver directly to Samarth (<strong>samarthgupthad0@gmail.com</strong>).`;
-        }
-        showToast('Delivering to email...');
-        form.reset();
-      }
-    } catch (err) {
-      console.error('Form delivery notice:', err);
-      // Fallback: Open mail client directly
-      window.location.href = mailtoUrl;
-      if (statusEl) {
-        statusEl.className = 'form-status success';
-        statusEl.innerHTML = `✓ Thank you, <strong>${name}</strong>! Opening your email app to deliver directly to Samarth (<strong>samarthgupthad0@gmail.com</strong>).`;
-      }
-      showToast('Opening mail app...');
-      form.reset();
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-      if (btnText) btnText.textContent = 'Send Message';
-      setTimeout(() => {
-        if (statusEl && statusEl.className.includes('error')) {
-          statusEl.textContent = '';
-        }
-      }, 7000);
+    // 3. Immediately display confirmation and direct link fallback so user never gets stuck loading
+    if (statusEl) {
+      statusEl.className = 'form-status success';
+      statusEl.innerHTML = `
+        <div style="padding: 1.1rem; border-radius: 10px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); margin-top: 1rem; text-align: left;">
+          <p style="margin: 0 0 0.4rem 0; font-weight: 600; color: #38bdf8; font-size: 0.95rem;">✓ Message Ready from ${email}</p>
+          <p style="margin: 0 0 0.75rem 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+            Opening your mail app to send directly to <strong>samarthgupthad0@gmail.com</strong>. If your email app did not open automatically, tap below:
+          </p>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <a href="${mailtoUrl}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem; text-decoration: none;">
+              <span>Open in Mail App &rarr;</span>
+            </a>
+            <a href="${gmailWebUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem; text-decoration: none;">
+              <span>Open in Gmail Web &rarr;</span>
+            </a>
+          </div>
+        </div>
+      `;
     }
+
+    if (btnText) btnText.textContent = 'Message Prepared ✓';
+    showToast(`Dispatching message from ${email}...`);
+
+    setTimeout(() => {
+      if (btnText) btnText.textContent = 'Send Message';
+    }, 4000);
   });
 }
 
